@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FavoriteDto {
+    private String id;
     private String userId;
-    private RecipeDto recipeDto;
+    private String recipeId;
 }

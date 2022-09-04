@@ -7,11 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RecipeDto {
+public class UserDto {
     private String id;
-    private String title;
-    private String cleanedIngredients;
-    private String instructions;
-    private String persons;
-    private String vegetarian;
+    private String fname;
+    private String lname;
 }

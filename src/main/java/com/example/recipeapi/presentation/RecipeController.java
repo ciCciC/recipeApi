@@ -2,7 +2,6 @@ package com.example.recipeapi.presentation;
 
 import com.example.recipeapi.business.DataLoaderService;
 import com.example.recipeapi.business.RecipeService;
-import com.example.recipeapi.business.SearchService;
 import com.example.recipeapi.document.Recipe;
 import com.example.recipeapi.presentation.dto.PageDto;
 import com.example.recipeapi.presentation.dto.RecipeDto;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -20,20 +20,21 @@ public class RecipeController extends BaseController<RecipeDto> {
 
     private final RecipeService recipeService;
     private final DataLoaderService dataLoaderService;
-    private final SearchService searchService;
 
-    public RecipeController(RecipeService recipeService, DataLoaderService dataLoaderService, SearchService searchService) throws URISyntaxException, IOException, CsvException {
+    public RecipeController(RecipeService recipeService, DataLoaderService dataLoaderService) throws URISyntaxException, IOException, CsvException {
         this.recipeService = recipeService;
         this.dataLoaderService = dataLoaderService;
-        this.searchService = searchService;
-        this.dataLoaderService.removeAll();
-        this.dataLoaderService.populate();
+        this.dataLoaderService.removeAll(Recipe.class);
+        this.dataLoaderService.populateRecipes();
     }
 
     @GetMapping()
     @ResponseBody
-    public Optional<Iterable<Recipe>> getAll(){
-        return this.recipeService.findAll();
+    @Override
+    public Optional<List<RecipeDto>> getAll() {
+        var recipes = this.recipeService.findAll();
+        var recipeDtos = recipes.map(RecipeMapper.INSTANCE::toRecipeDTOs);
+        return recipeDtos;
     }
 
     @GetMapping("/{id}")
@@ -46,7 +47,7 @@ public class RecipeController extends BaseController<RecipeDto> {
 
     @PostMapping()
     @ResponseBody
-    public RecipeDto createRecipe(@RequestBody RecipeDto recipeDto){
+    public RecipeDto create(@RequestBody RecipeDto recipeDto) {
         var created = this.recipeService.create(RecipeMapper.INSTANCE.recipeDtoToRecipe(recipeDto));
         return RecipeMapper.INSTANCE.recipeToRecipeDto(created);
     }
@@ -72,7 +73,7 @@ public class RecipeController extends BaseController<RecipeDto> {
      */
     @GetMapping("/populate")
     public void populate() throws IOException, URISyntaxException, CsvException {
-        this.dataLoaderService.populate();
+        this.dataLoaderService.populateRecipes();
     }
 
     @Override

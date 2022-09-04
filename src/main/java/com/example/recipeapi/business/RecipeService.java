@@ -6,14 +6,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class RecipeService {
 
-    private ElasticsearchRestTemplate es;
+    private final ElasticsearchRestTemplate es;
 
-    private RecipeRepository recipeRepository;
+    private final RecipeRepository recipeRepository;
 
     public RecipeService(
             RecipeRepository recipeRepository,
@@ -23,8 +26,10 @@ public class RecipeService {
         this.es = es;
     }
 
-    public Optional<Iterable<Recipe>> findAll() {
-        return Optional.of(this.recipeRepository.findAll());
+    public Optional<List<Recipe>> findAll() {
+        var recipes = this.recipeRepository.findAll();
+        var mappedToList = StreamSupport.stream(recipes.spliterator(), false).collect(Collectors.toList());
+        return Optional.of(mappedToList);
     }
 
     public Recipe create(Recipe recipe){
