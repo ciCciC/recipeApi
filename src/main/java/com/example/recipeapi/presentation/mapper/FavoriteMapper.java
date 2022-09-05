@@ -1,6 +1,6 @@
 package com.example.recipeapi.presentation.mapper;
 
-import com.example.recipeapi.document.Favorite;
+import com.example.recipeapi.business.entity.Favorite;
 import com.example.recipeapi.presentation.dto.FavoriteDto;
 import com.example.recipeapi.presentation.dto.RecipeDto;
 import org.mapstruct.Mapper;

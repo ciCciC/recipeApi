@@ -1,7 +1,10 @@
 package com.example.recipeapi.business;
 
-import com.example.recipeapi.document.Recipe;
-import com.example.recipeapi.document.User;
+import com.example.recipeapi.business.entity.Favorite;
+import com.example.recipeapi.business.entity.Recipe;
+import com.example.recipeapi.business.entity.User;
+import com.example.recipeapi.repository.RecipeRepository;
+import com.example.recipeapi.repository.UserRepository;
 import com.google.gson.Gson;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
@@ -18,6 +21,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
@@ -25,17 +29,29 @@ import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 public class DataLoaderService {
 
     private final ElasticsearchRestTemplate es;
+    private final UserRepository userRepository;
+    private final RecipeRepository recipeRepository;
 
-    public DataLoaderService(@Qualifier("elsTemp") ElasticsearchRestTemplate es){
+    public DataLoaderService(UserRepository userRepository,
+                             RecipeRepository recipeRepository,
+            @Qualifier("elsTemp") ElasticsearchRestTemplate es) throws URISyntaxException, IOException, CsvException {
         this.es = es;
+        this.userRepository = userRepository;
+        this.recipeRepository = recipeRepository;
+        this.removeAll(Recipe.class);
+        this.removeAll(Favorite.class);
+        this.removeAll(User.class);
+        this.populateRecipes();
+        this.populateUsers();
+        this.genFakeCustomerBehavior();
     }
 
-    public <T> void removeAll(Class<T> documentType){
+    public <T> void removeAll(Class<T> docType){
         var allRecords = new NativeSearchQueryBuilder()
                 .withQuery(matchAllQuery())
                 .build();
 
-        this.es.delete(allRecords, documentType);
+        this.es.delete(allRecords, docType);
     }
 
     private <T> IndexQuery mapToQuery(T document, Gson gson) {
@@ -44,18 +60,8 @@ public class DataLoaderService {
         return indexQuery;
     }
 
-//    private Recipe buildFromStringArr(String[] raw){
-//        return Recipe.builder()
-//                .title(raw[1])
-//                .cleanedIngredients(raw[2])
-//                .instructions(raw[3])
-//                .persons(raw[5])
-//                .vegetarian(raw[6])
-//                .build();
-//    }
-
     public void populateRecipes() throws URISyntaxException, IOException, CsvException {
-        var path = Paths.get(ClassLoader.getSystemResource("semi_data_recipe.csv").toURI());
+        var path = Paths.get(ClassLoader.getSystemResource("data_recipe.csv").toURI());
         var recipes = new CSVReader(new FileReader(path.toString())).readAll();
 
         var indexQueryList = recipes.stream()
@@ -63,7 +69,7 @@ public class DataLoaderService {
                 .parallel()
                 .map(raw -> Recipe.builder()
                         .title(raw[1])
-                        .cleanedIngredients(raw[2])
+                        .ingredients(raw[2])
                         .instructions(raw[3])
                         .persons(raw[5])
                         .vegetarian(raw[6])
@@ -96,6 +102,38 @@ public class DataLoaderService {
                         .withRefreshPolicy(RefreshPolicy.IMMEDIATE)
                         .build(),
                 User.class);
+    }
+
+    public void genFakeCustomerBehavior(){
+        var users = StreamSupport.stream(this.userRepository.findAll().spliterator(), false).toList();
+        var recipes = StreamSupport.stream(this.recipeRepository.findAll().spliterator(), false).toList();
+
+        var firstCandidate = users.get(0).getId();
+        var secondCandidate = users.get(1).getId();
+
+        var firstCandidateFavorites = recipes.stream()
+                .limit(6)
+                .map(Recipe::getId)
+                .map(recipeId -> Favorite.builder().userId(firstCandidate).recipeId(recipeId).build())
+                .toList();
+
+        var secondCandidateFavorites = recipes.stream()
+                .skip(10)
+                .limit(2)
+                .map(Recipe::getId)
+                .map(recipeId -> Favorite.builder().userId(secondCandidate).recipeId(recipeId).build())
+                .toList();
+
+        var indexQueryList = Stream.concat(firstCandidateFavorites.stream(), secondCandidateFavorites.stream())
+                .map(favorite -> mapToQuery(favorite, new Gson())).toList();
+
+        es.bulkIndex(
+                indexQueryList,
+                BulkOptions
+                        .builder()
+                        .withRefreshPolicy(RefreshPolicy.IMMEDIATE)
+                        .build(),
+                Favorite.class);
     }
 
 }

@@ -1,6 +1,6 @@
 package com.example.recipeapi.presentation.mapper;
 
-import com.example.recipeapi.document.Recipe;
+import com.example.recipeapi.business.entity.Recipe;
 import com.example.recipeapi.presentation.dto.RecipeDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

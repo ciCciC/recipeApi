@@ -1,31 +1,28 @@
 package com.example.recipeapi.business;
 
-import com.example.recipeapi.document.User;
+import com.example.recipeapi.business.entity.User;
+import com.example.recipeapi.repository.FavoriteRepository;
 import com.example.recipeapi.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
 public class UserService {
 
-    private final ElasticsearchRestTemplate es;
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final FavoriteRepository favoriteRepository;
 
-    public UserService(UserRepository userRepository,
-            @Qualifier("elsTemp") ElasticsearchRestTemplate es){
+    public UserService(UserRepository userRepository, FavoriteRepository favoriteRepository){
         this.userRepository = userRepository;
-        this.es = es;
+        this.favoriteRepository = favoriteRepository;
     }
 
     public Optional<List<User>> findAll() {
         var users = this.userRepository.findAll();
-        var mappedToList = StreamSupport.stream(users.spliterator(), false).collect(Collectors.toList());
+        var mappedToList = StreamSupport.stream(users.spliterator(), false).toList();
         return Optional.of(mappedToList);
     }
 
@@ -49,6 +46,7 @@ public class UserService {
 
     public void deleteById(String id){
         this.userRepository.deleteById(id);
+        this.favoriteRepository.deleteFavoritesByUserId(id);
     }
 
 }

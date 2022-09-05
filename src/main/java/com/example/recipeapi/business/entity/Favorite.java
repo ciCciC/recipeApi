@@ -1,4 +1,4 @@
-package com.example.recipeapi.document;
+package com.example.recipeapi.business.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

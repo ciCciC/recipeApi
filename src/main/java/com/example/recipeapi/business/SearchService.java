@@ -1,15 +1,15 @@
 package com.example.recipeapi.business;
 
-
-import com.example.recipeapi.document.Recipe;
+import com.example.recipeapi.presentation.dto.CriteriaDto;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.data.elasticsearch.core.SearchHit;
-import org.springframework.data.elasticsearch.core.query.IndexBoost;
 import org.springframework.data.elasticsearch.core.query.NativeSearchQueryBuilder;
 import org.springframework.stereotype.Service;
 
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SearchService {
@@ -20,18 +20,28 @@ public class SearchService {
         this.es = es;
     }
 
-    public String genNewId(){
-        var indexToHit = new IndexBoost("recipe", 2);
-        var allIds = new NativeSearchQueryBuilder()
-                .withQuery(matchAllQuery())
+    public <R> Optional<List<R>> filter(List<CriteriaDto> criteriaDtoList, Class<R> docType){
+        var boolQuery = QueryBuilders.boolQuery();
+
+        criteriaDtoList.forEach(criteriaDto -> {
+            var matchPhraseQuery = QueryBuilders.matchPhraseQuery(criteriaDto.getFieldName(), criteriaDto.getValue());
+            if (criteriaDto.isCondition()){
+                boolQuery.must(matchPhraseQuery);
+            }else{
+                boolQuery.mustNot(matchPhraseQuery);
+            }
+        });
+
+        var searchQuery = new NativeSearchQueryBuilder()
+                .withQuery(boolQuery)
                 .build();
 
-        var x = this.es.search(allIds, Recipe.class);
-        var id = x.getSearchHits().stream().map(SearchHit::getId);
+        var result = this.es.search(searchQuery, docType)
+                .getSearchHits()
+                .stream()
+                .map(SearchHit::getContent)
+                .toList();
 
-//        var x = (Recipe) allIds.toArray()[allIds.size()-1];
-        return id.toList().get(0);
+        return Optional.of(result);
     }
-
-
 }

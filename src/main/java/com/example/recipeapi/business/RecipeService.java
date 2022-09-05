@@ -1,6 +1,6 @@
 package com.example.recipeapi.business;
 
-import com.example.recipeapi.document.Recipe;
+import com.example.recipeapi.business.entity.Recipe;
 import com.example.recipeapi.repository.FavoriteRepository;
 import com.example.recipeapi.repository.RecipeRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -48,7 +48,7 @@ public class RecipeService {
                 .orElseThrow(Exception::new);
 
         updateRecipe.setTitle(recipe.getTitle());
-        updateRecipe.setCleanedIngredients(recipe.getCleanedIngredients());
+        updateRecipe.setIngredients(recipe.getIngredients());
         updateRecipe.setInstructions(recipe.getInstructions());
         updateRecipe.setPersons(recipe.getPersons());
         updateRecipe.setVegetarian(recipe.getVegetarian());
@@ -58,7 +58,7 @@ public class RecipeService {
 
     public void deleteById(String id){
         this.recipeRepository.deleteById(id);
-        this.favoriteRepository.deleteFavoriteByRecipeId(id);
+        this.favoriteRepository.deleteFavoritesByRecipeId(id);
     }
 
 }

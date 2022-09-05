@@ -1,6 +1,6 @@
 package com.example.recipeapi.business;
 
-import com.example.recipeapi.document.Favorite;
+import com.example.recipeapi.business.entity.Favorite;
 import com.example.recipeapi.presentation.dto.FavoriteDto;
 import com.example.recipeapi.presentation.mapper.FavoriteMapper;
 import com.example.recipeapi.presentation.mapper.RecipeMapper;
@@ -29,23 +29,6 @@ public class FavoriteService {
     }
 
     public Optional<List<FavoriteDto>> findAll(String userId) {
-//        var q = QueryBuilders.boolQuery()
-//                .must(QueryBuilders
-//                        .queryStringQuery(userId)
-//                        .field("userId"));
-//
-//        var sq = new NativeSearchQueryBuilder()
-//                .withQuery(q)
-//                .build();
-//
-//        var result = this.es.search(sq, Favorite.class)
-//                .getSearchHits()
-//                .stream()
-//                .map(SearchHit::getContent)
-//                .toList();
-
-//        return Optional.of(result);
-
         var qResult = this.favoriteRepository.findByUserId(userId);
         return qResult
                 .map(favorites -> favorites.stream()
