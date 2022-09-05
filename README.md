@@ -7,7 +7,9 @@ Containing CRUD operations
 - install a SDK e.g. IntelliJ or VScode (optional)
 - git clone the repo
 
-# Reproducing
+# Reproducibility
 - go to the root of the project within the terminal
 - then run the following: docker-compose -f docker-compose.yml up
-- lastly run the application from terminal: ./gradlew bootRun
+- lastly run the application from terminal: 
+  - Application -> "./gradlew bootRun"
+  - Test -> "./gradlew test"
