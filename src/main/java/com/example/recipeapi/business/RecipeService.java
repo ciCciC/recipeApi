@@ -1,6 +1,7 @@
 package com.example.recipeapi.business;
 
 import com.example.recipeapi.document.Recipe;
+import com.example.recipeapi.repository.FavoriteRepository;
 import com.example.recipeapi.repository.RecipeRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
@@ -15,14 +16,16 @@ import java.util.stream.StreamSupport;
 public class RecipeService {
 
     private final ElasticsearchRestTemplate es;
-
     private final RecipeRepository recipeRepository;
+    private final FavoriteRepository favoriteRepository;
 
     public RecipeService(
             RecipeRepository recipeRepository,
+            FavoriteRepository favoriteRepository,
             @Qualifier("elsTemp") ElasticsearchRestTemplate es){
 
         this.recipeRepository = recipeRepository;
+        this.favoriteRepository = favoriteRepository;
         this.es = es;
     }
 
@@ -36,8 +39,8 @@ public class RecipeService {
         return this.recipeRepository.save(recipe);
     }
 
-    public Optional<Recipe> findById(String id) throws Exception {
-        return Optional.ofNullable(this.recipeRepository.findById(id).orElseThrow(Exception::new));
+    public Optional<Recipe> findById(String id) {
+        return this.recipeRepository.findById(id);
     }
 
     public Recipe update(Recipe recipe) throws Exception {
@@ -54,8 +57,8 @@ public class RecipeService {
     }
 
     public void deleteById(String id){
-        //TODO: also delete from Favorite index!
         this.recipeRepository.deleteById(id);
+        this.favoriteRepository.deleteFavoriteByRecipeId(id);
     }
 
 }
