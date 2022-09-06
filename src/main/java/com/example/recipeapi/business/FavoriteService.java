@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 @Service
 public class FavoriteService {
@@ -30,6 +31,11 @@ public class FavoriteService {
                         .map(favorite -> mapTo(favorite, favorite.getRecipeId()))
                                 .toList()
                         );
+    }
+
+    public Optional<List<FavoriteDto>> findAll(){
+        var favorites = StreamSupport.stream(this.favoriteRepository.findAll().spliterator(), false).toList();
+        return Optional.of(favorites.stream().map(f -> mapTo(f, f.getRecipeId())).toList());
     }
 
     public Favorite create(Favorite favorite){

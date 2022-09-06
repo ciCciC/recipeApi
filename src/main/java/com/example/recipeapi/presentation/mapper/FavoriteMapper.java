@@ -26,5 +26,4 @@ public interface FavoriteMapper {
                 .recipeId(favoriteDto.getRecipeDto().getId())
                 .build();
     }
-
 }

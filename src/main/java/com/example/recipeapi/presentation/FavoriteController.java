@@ -22,6 +22,13 @@ public class FavoriteController extends BaseController<FavoriteDto> {
     @GetMapping
     @ResponseBody
     @Override
+    public Optional<List<FavoriteDto>> getAll(){
+        return this.favoriteService.findAll();
+    }
+
+    @GetMapping("/user")
+    @ResponseBody
+    @Override
     public Optional<List<FavoriteDto>> getAll(@RequestParam String userId) {
         return this.favoriteService.findAll(userId);
     }

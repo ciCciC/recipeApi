@@ -54,9 +54,9 @@ public class FakeObjects {
         );
     }
 
-    public static List<CriteriaDto> fakeSearchNpersonsHavePotatoes(){
+    public static List<CriteriaDto> fakeSearchNpersonsHavePotatoes(int n){
         return Arrays.asList(
-                CriteriaDto.builder().fieldName("persons").value("4").condition(true).build(),
+                CriteriaDto.builder().fieldName("persons").value(String.valueOf(n)).condition(true).build(),
                 CriteriaDto.builder().fieldName("ingredients").value("potatoes").condition(true).build()
         );
     }

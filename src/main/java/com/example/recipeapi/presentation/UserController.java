@@ -30,7 +30,7 @@ public class UserController extends BaseController<UserDto> {
     @GetMapping("/{id}")
     @ResponseBody
     @Override
-    public Optional<UserDto> findById(String id) throws Exception {
+    public Optional<UserDto> findById(@PathVariable String id) throws Exception {
         var user = this.userService.findById(id);
         return user.map(UserMapper.INSTANCE::userToUserDto);
     }

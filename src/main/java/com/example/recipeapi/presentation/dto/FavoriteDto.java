@@ -15,7 +15,6 @@ public class FavoriteDto {
     private String id;
     @NotBlank(message = "Is mandatory")
     private String userId;
-    @NotBlank(message = "Is mandatory")
     private RecipeDto recipeDto;
 }
 

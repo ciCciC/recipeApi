@@ -42,7 +42,7 @@ class SearchServiceTest {
 
     @Test
     void searchNpersonsHavePotatoes() {
-        var query = fakeSearchNpersonsHavePotatoes();
+        var query = fakeSearchNpersonsHavePotatoes(4);
         var docType = Recipe.class;
         var expected = fakeSearchHits();
 
