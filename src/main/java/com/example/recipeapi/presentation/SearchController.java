@@ -23,7 +23,7 @@ public class SearchController {
 
     @GetMapping("/recipes")
     @ResponseBody
-    public Optional<List<RecipeDto>> filterRecipes(@Valid @RequestBody List<CriteriaDto> criteriaDto) throws ClassNotFoundException {
+    public Optional<List<RecipeDto>> filterRecipes(@Valid @RequestBody List<CriteriaDto> criteriaDto) {
         var recipes = this.searchService.filter(criteriaDto, Recipe.class);
         return recipes.map(RecipeMapper.INSTANCE::toRecipeDTOs);
     }
