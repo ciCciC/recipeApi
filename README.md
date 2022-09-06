@@ -10,6 +10,6 @@ Containing CRUD operations
 # Reproducibility
 - go to the root of the project within the terminal
 - then run the following: docker-compose -f docker-compose.yml up
-- lastly run the application from terminal: 
-  - Application -> "./gradlew bootRun"
-  - Test -> "./gradlew test"
+- lastly run within the terminal: 
+  - for Application -> "./gradlew bootRun"
+  - for Test -> "./gradlew test"

@@ -21,6 +21,7 @@ public interface FavoriteMapper {
 
     default Favorite favoriteDtoToFavorite(FavoriteDto favoriteDto){
         return Favorite.builder()
+                .id(favoriteDto.getId())
                 .userId(favoriteDto.getUserId())
                 .recipeId(favoriteDto.getRecipeDto().getId())
                 .build();

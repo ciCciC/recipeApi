@@ -6,8 +6,6 @@ import com.example.recipeapi.presentation.mapper.FavoriteMapper;
 import com.example.recipeapi.presentation.mapper.RecipeMapper;
 import com.example.recipeapi.repository.FavoriteRepository;
 import com.example.recipeapi.repository.RecipeRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,16 +14,13 @@ import java.util.Optional;
 @Service
 public class FavoriteService {
 
-    private final ElasticsearchRestTemplate es;
     private final FavoriteRepository favoriteRepository;
     private final RecipeRepository recipeRepository;
 
     public FavoriteService(FavoriteRepository favoriteRepository,
-                           RecipeRepository recipeRepository,
-                           @Qualifier("elsTemp") ElasticsearchRestTemplate es){
+                           RecipeRepository recipeRepository){
         this.favoriteRepository = favoriteRepository;
         this.recipeRepository = recipeRepository;
-        this.es = es;
     }
 
     public Optional<List<FavoriteDto>> findAll(String userId) {

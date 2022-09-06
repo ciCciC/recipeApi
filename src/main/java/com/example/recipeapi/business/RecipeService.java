@@ -3,35 +3,28 @@ package com.example.recipeapi.business;
 import com.example.recipeapi.business.entity.Recipe;
 import com.example.recipeapi.repository.FavoriteRepository;
 import com.example.recipeapi.repository.RecipeRepository;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.elasticsearch.core.ElasticsearchRestTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
 public class RecipeService {
 
-    private final ElasticsearchRestTemplate es;
     private final RecipeRepository recipeRepository;
     private final FavoriteRepository favoriteRepository;
 
     public RecipeService(
             RecipeRepository recipeRepository,
-            FavoriteRepository favoriteRepository,
-            @Qualifier("elsTemp") ElasticsearchRestTemplate es){
-
+            FavoriteRepository favoriteRepository){
         this.recipeRepository = recipeRepository;
         this.favoriteRepository = favoriteRepository;
-        this.es = es;
     }
 
     public Optional<List<Recipe>> findAll() {
         var recipes = this.recipeRepository.findAll();
-        var mappedToList = StreamSupport.stream(recipes.spliterator(), false).collect(Collectors.toList());
+        var mappedToList = StreamSupport.stream(recipes.spliterator(), false).toList();
         return Optional.of(mappedToList);
     }
 

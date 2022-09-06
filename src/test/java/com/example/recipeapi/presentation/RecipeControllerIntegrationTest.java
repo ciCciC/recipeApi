@@ -1,10 +1,12 @@
 package com.example.recipeapi.presentation;
 
+import com.example.recipeapi.repository.RecipeRepository;
 import com.opencsv.CSVReader;
 import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -17,25 +19,29 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.io.FileReader;
 import java.nio.file.Paths;
+import java.util.stream.StreamSupport;
 
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class RecipeControllerTest {
+class RecipeControllerIntegrationTest {
 
     @Autowired
     private RecipeController recipeController;
 
     @Autowired
+    private RecipeRepository recipeRepository;
+
+    @Autowired
     private MockMvc mockMvc;
 
     @Test
-    public void whenRecipeControllerInjected_thenNotNull() {
+    public void whenRecipeControllerInjectedThenNotNull() {
         assertThat(recipeController).isNotNull();
     }
 
     @Test
-    void getAll() throws Exception {
+    void getAllRecipes() throws Exception {
         var path = Paths.get(ClassLoader.getSystemResource("data_recipe.csv").toURI());
 
         // with - 1 we skip the headers
@@ -48,14 +54,31 @@ class RecipeControllerTest {
                 .andExpect(jsonPath("$", hasSize(numRecipes)));
     }
 
-//    @Test
-//    void findById() {
-//    }
-//
-//    @Test
-//    void create() {
-//    }
-//
+    @Test
+    void findByIdShouldReturnARecipe() throws Exception {
+        var recipe = StreamSupport.stream(this.recipeRepository.findAll().spliterator(), false).toList().get(0);
+
+        this.mockMvc.perform(get("/recipe/{id}", recipe.getId()))
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(recipe.getId()))
+                .andExpect(jsonPath("$.title").value(recipe.getTitle()))
+                .andExpect(jsonPath("$.ingredients").value(recipe.getIngredients()))
+                .andExpect(jsonPath("$.instructions").value(recipe.getInstructions()))
+                .andExpect(jsonPath("$.persons").value(recipe.getPersons()))
+                .andExpect(jsonPath("$.vegetarian").value(recipe.getVegetarian()));
+    }
+
+    @Test
+    void createRecipeAndReturn() throws Exception {
+        var requestJson = "";
+
+        this.mockMvc.perform(post("/recipe")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(requestJson))
+                .andExpect(status().isOk());
+    }
+
 //    @Test
 //    void update() {
 //    }
